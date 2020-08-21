@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 //Import routes
 
 const authRoute = require('./routes/auth');
+const postRoute = require('./routes/posts');
 
 dotenv.config();
 
@@ -21,9 +22,9 @@ app.use(express.urlencoded({ extended: false }));
 
 //Route middlewares
 app.use('/api/user', authRoute);
+app.use('/api/posts', postRoute);
 
 
 
-
-
-app.listen(5000, () => console.log('Server up and running'));
+const port = process.env.PORT|| 5000;
+app.listen(port, () => console.log('Server up and running'));
