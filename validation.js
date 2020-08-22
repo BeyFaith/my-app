@@ -50,6 +50,24 @@ const postValidation = data => {
 };
 
 
+//message validation
+const messageValidation = data => {
+    const schema = Joi.object({
+        name: Joi.string()
+        .min(6)
+        .required(),
+        subject: Joi.string()
+        .min(6)
+        .required()
+        ,
+        content: Joi.string()
+        .min(6)
+        .required()
+    });
+    return schema.validate(data);
+};
+
+
 
 
 
@@ -58,3 +76,4 @@ const postValidation = data => {
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.postValidation  = postValidation;
+module.exports.messageValidation = messageValidation;
