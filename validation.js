@@ -32,5 +32,29 @@ const loginValidation = data => {
     return schema.validate(data);
 };
 
+//post validation
+const postValidation = data => {
+    const schema = Joi.object({
+        author: Joi.string()
+        .min(6)
+        .required(),
+        title: Joi.string()
+        .min(6)
+        .required()
+        ,
+        content: Joi.string()
+        .min(6)
+        .required()
+    });
+    return schema.validate(data);
+};
+
+
+
+
+
+
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
+module.exports.postValidation  = postValidation;
