@@ -1,8 +1,7 @@
 const  router = require('express').Router();
-const User = require('../models/user');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const {registerValidation, loginValidation} = require('../validation');
+const Message = require('../models/message');
+const verify = require('../middlewares/verifyToken');
+const {messageValidation} = require('../validation');
 
 
 
@@ -10,40 +9,52 @@ const {registerValidation, loginValidation} = require('../validation');
 
 
 
-router.post('/register',async (req,res) =>{
+router.post('/', verify, async (req,res) =>{
 
-    //lets validate the data before we create a user
-    const { error } = registerValidation(req.body);
+    //lets validate the data before we create a post
+    const { error } = messageValidation(req.body);
   if (error) {
       return res.status(400).send({ error: error.details[0].message });
   }
 
- //checking if user is in database
+ //CREATING MESSAGE
 
- const emailExist = await User.findOne({email:req.body.email});
- if(emailExist) {
-     return res.status(400).send('Email already exists');
- }
-
-
-
-//  Hashing passwords
-
-const salt = await bcrypt.genSalt(10);
-const hashedPassword = await bcrypt.hash(req.body.password,salt);
-
-
-
-
- //create new user
-    const user = new User({
+    const message = new Message({
         name:req.body.name,
-        email:req.body.email,
-        password:hashedPassword
+        subject:req.body.subject,
+        content:req.body.content
     });
     try{
-        const savedUser = await user.save();
-        res.send({user:user._id});
+        const savedMessage = await message.save();
+        res.send(message);
+    }catch(err){
+        console.log(err);
+        res.status(400).send(err);
+    }
+});
+
+//reading a message
+router.get('/', async (req,res) =>{
+
+
+    try{
+        const savedMessage = await Message.find();
+        res.status(200).send(savedMessage);
+    }catch(err){
+        console.log(err);
+        res.status(400).send(err);
+    }
+});
+
+
+//deleting a message
+router.delete('/:_id', verify, async (req,res) =>{
+
+
+    try{
+        const deletedMessage = await Message.findByIdAndDelete({_id:req.params._id});
+        if(!deletedMessage) return res.status(404).send({message:"Mesage not found"})
+        res.status(200).send({message:"Message deleted"});
     }catch(err){
         console.log(err);
         res.status(400).send(err);
@@ -52,33 +63,25 @@ const hashedPassword = await bcrypt.hash(req.body.password,salt);
 
 
 
-//LOGIN
+//Updating a message
+router.put('/:_id', verify, async (req,res) =>{
 
-router.post('/login',async(req,res) => {
-  //lets validate the data before we create a user
-  const { error } = loginValidation(req.body);
-  if (error) { 
-      return res.status(400).send({ error: error.details[0].message });
-  }
 
-  //checking if email exists
-
- const user = await User.findOne({email:req.body.email});
- if(!user) { 
-     return res.status(400).send('Email doesnt exist');
- }
-
- //if password is correct
-    const validPass = await bcrypt.compare(req.body.password,user.password);
-    if(!validPass) {
-        return res.status(400).send('Invalid password');
+    try{
+        const updatedMessage = await Message.findByIdAndUpdate({_id:req.params._id},{
+            name: req.body.name,
+            subject:req.body.subject,
+            content: req.body.content
+        },{new:true});
+        if(!updatedMessage) return res.status(404).send({message:"Message not found"})
+        res.status(200).send({message:"Message updated!",updatedMessage});
+    }catch(err){
+        console.log(err);
+        res.status(400).send(err);
     }
-
-
-    //create and assign a token
-    const token = jwt.sign({_id:user._id},process.env.TOKEN_SECRET);
-    res.header('auth-token',token).send(token);
-    // res.send('Logged in!');
 });
+
+
+
 
 module.exports = router;

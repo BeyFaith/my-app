@@ -1,22 +1,23 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
+const messageSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
         min:6,
-        max: 255
+        max: 250
     },
-    email: {
+    subject: {
         type: String,
         required: true,
-        max: 255,
-        min:6
+        min:6,
+        max: 250
+    
     },
-    password: {
+    content: {
         type: String,
         required: true,
-        max: 255,
+        max: 2500,
         min:6
     },
     date: {
@@ -25,4 +26,4 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('User',userSchema);
+module.exports = mongoose.model('Message',messageSchema);
