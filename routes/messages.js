@@ -1,8 +1,7 @@
 const  router = require('express').Router();
 const Message = require('../models/message');
-const verify = require('../middlewares/verifyToken');
 const {messageValidation} = require('../validation');
-
+const verify = require('../middlewares/verifyToken')
 
 
 
